@@ -1,4 +1,4 @@
-# Gradient descent for linear regression
+# Binary Classification with Logistic Regression
 In progress ...
 
 ## Datasets
