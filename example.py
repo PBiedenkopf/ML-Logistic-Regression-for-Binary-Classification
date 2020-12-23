@@ -15,7 +15,7 @@ y = data[:,2]
 X = data[:,:2]
 
 # Create algorithm instance
-model = lr.LinearLogisticRegression(X, y, verbose=False)
+model = lr.LinearLogisticRegression(X, y, verbose=True)
 
 # Fit model with training data
 model.train()
