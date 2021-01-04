@@ -15,12 +15,12 @@ y = data[:,2]
 X = data[:,:2]
 
 # Create algorithm instance
-model = lr.LinearLogisticRegression(X, y, verbose=True)
+model = lr.LinearLogisticRegression(X, y, verbose=True, method='L-BFGS-B')
 
 # Fit model with training data
 model.train()
 model.plotDecisionBoundary2D()
 
 # Make prediction for new datapoint
-pred = [45, 85]
+pred = [50, 85]
 model.predict(pred)

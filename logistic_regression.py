@@ -7,6 +7,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.optimize as opt
+import logging
+from utility import sigmoid
+
+logging.basicConfig(filename="ERROR.log",
+                    filemode='w',
+                    level=logging.ERROR)
 
 class LinearLogisticRegression:
     """ 
@@ -30,7 +36,7 @@ class LinearLogisticRegression:
         self.verbose = verbose
         self.ftol = ftol
         self.method = method
-        
+        self.logger = logging.getLogger()
         
     def train(self):
         """ 
@@ -49,7 +55,8 @@ class LinearLogisticRegression:
         if self.verbose:
             self.plotConvergence()
             print(f'Model accuracy is: {self.acc:.1f}% on training data')
-        
+            
+            
     def predict(self, x):
         """ 
             Predicts value for a given datapoint x.
@@ -59,7 +66,7 @@ class LinearLogisticRegression:
         x = np.insert(x, 0, 1)
         prob = sigmoid(x.dot(self.theta));
         if self.verbose:
-            print(f'Prediction for {x} is: {100*prob:.1f}%')
+            print(f'Prediction for {x[1:]} is: {100*prob:.1f}%')
         return prob
     
     def accuracy(self, threshold=0.5):
@@ -87,8 +94,8 @@ class LinearLogisticRegression:
             print("Iter: {} | theta: {}".format(self.iter, theta))
         J = 0
         m = len(self.y)
-        
-        cost = -self.y*np.log(sigmoid(self.X.dot(theta))) - (np.ones([m,])-self.y)*np.log(1-sigmoid(self.X.dot(theta)))
+        # Using np.finfo(float).eps to avoid dividing by zero errors/warnings
+        cost = -self.y*np.log(sigmoid(self.X.dot(theta))+np.finfo(float).eps) - (np.ones([m,])-self.y)*np.log(1-sigmoid(self.X.dot(theta))+np.finfo(float).eps)
         J = 1/m * sum(cost)
         
         self.costHist.append(J)
@@ -126,6 +133,13 @@ class LinearLogisticRegression:
         """
             Plots the dataset and the decision boundary of the model
         """
+        try:
+            assert self.X.shape[1] == 3 # Method only valid for 2D problems
+        except:
+            self.logger.error("plotDecisionBoundary2D() method is only valid for 2-dimensional problems!")
+            logging.shutdown()
+            raise AssertionError("plotDecisionBoundary2D() method is only valid for 2-dimensional problems!")
+            
         plt.figure(3)
         X1 = self.X[:,1]
         X2 = self.X[:,2]
@@ -144,10 +158,3 @@ class LinearLogisticRegression:
         
     def __str__(self):
         return "Logistic Regression with regularisation: {} and max. {} Iterations.".format(self.Lambda, self.optMaxIter)
-
-
-def sigmoid(z):
-    """
-        Returns value of the sigmoid function for z
-    """
-    return 1 / (1 + np.exp(-z));
